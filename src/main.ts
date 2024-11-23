@@ -143,6 +143,10 @@ const visualizeGumowskiMira = (
     ctx.fill();
 };
 
+const randomFloat = (min: number, max: number): number => {
+    return Math.random() * (max - min) + min;
+};
+
 // Example usage
 const main = () => {
     const canvas = document.getElementById('canvas') as HTMLCanvasElement;
@@ -150,9 +154,9 @@ const main = () => {
 
     // Configuration
     const params: GumowskiParams = {
-        alpha: 0.009,
-        sigma: 0.05,
-        mu: -0.801
+        alpha: randomFloat(0, 1),
+        sigma: randomFloat(0, 1),
+        mu: randomFloat(-1, 1)
     };
 
     const calculator: PointCalculator = {

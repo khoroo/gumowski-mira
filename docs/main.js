@@ -69,15 +69,18 @@ const visualizeGumowskiMira = (ctx, points, viewport, options) => {
     ctx.fillStyle = options.color;
     ctx.fill();
 };
+const randomFloat = (min, max) => {
+    return Math.random() * (max - min) + min;
+};
 // Example usage
 const main = () => {
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     // Configuration
     const params = {
-        alpha: 0.009,
-        sigma: 0.05,
-        mu: -0.801
+        alpha: randomFloat(0, 1),
+        sigma: randomFloat(0, 1),
+        mu: randomFloat(-1, 1)
     };
     const calculator = {
         type: 'standard',
