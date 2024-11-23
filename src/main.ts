@@ -1,175 +1,9 @@
 // main.ts
-
-interface Point {
-    readonly x: number;
-    readonly y: number;
-}
-
 interface GumowskiParams {
     readonly alpha: number;
     readonly sigma: number;
     readonly mu: number;
 }
-
-interface SavedResult {
-    params: GumowskiParams;
-    rating: 'good' | 'bad';
-    timestamp: string;
-}
-interface Point {
-    readonly x: number;
-    readonly y: number;
-}
-
-interface GumowskiParams {
-    readonly alpha: number;
-    readonly sigma: number;
-    readonly mu: number;
-}
-
-// Discriminated union for different types of point calculations
-type PointCalculator = 
-    | { type: 'simple'; params: GumowskiParams }
-    | { type: 'standard'; params: GumowskiParams };
-
-interface Viewport {
-    readonly width: number;
-    readonly height: number;
-    readonly padding: number;
-}
-
-interface RenderOptions {
-    readonly color: string;
-    readonly radius: number;
-}
-
-// Helper functions with strong typing
-const createPoint = (x: number, y: number): Point => ({ x, y });
-
-const calculateG = ({ mu }: GumowskiParams) => (x: number): number => {
-    const x2 = x * x;
-    return mu * x + (2 * (1 - mu) * x2) / (1 + x2);
-};
-
-// Next point calculator using discriminated unions
-const createNextPointCalculator = (calculator: PointCalculator) => {
-    const g = calculateG(calculator.params);
-
-    return (point: Point): Point => {
-        switch (calculator.type) {
-            case 'simple':
-                return createPoint(
-                    point.y + g(point.x),
-                    -point.x + g(point.y + g(point.x))
-                );
-            
-            case 'standard': {
-                const { alpha, sigma } = calculator.params;
-                const nextX = point.y + alpha * point.y * (1 - sigma * point.y * point.y) + g(point.x);
-                return createPoint(
-                    nextX,
-                    -point.x + g(nextX)
-                );
-            }
-        }
-    };
-};
-
-// Iterator implementation using generator
-function* generatePoints(
-    calculator: PointCalculator,
-    initial: Point,
-    iterations: number
-): Generator<Point> {
-    const nextPoint = createNextPointCalculator(calculator);
-    let current = initial;
-
-    for (let i = 0; i < iterations; i++) {
-        current = nextPoint(current);
-        yield current;
-    }
-}
-
-// Data structures for visualization
-interface Bounds {
-    readonly min: Point;
-    readonly max: Point;
-}
-
-interface Scale {
-    readonly x: (n: number) => number;
-    readonly y: (n: number) => number;
-}
-
-// Visualization helpers
-const calculateBounds = (points: Point[]): Bounds => {
-    const initial: Bounds = {
-        min: createPoint(Infinity, Infinity),
-        max: createPoint(-Infinity, -Infinity)
-    };
-
-    return points.reduce((bounds, point) => ({
-        min: createPoint(
-            Math.min(bounds.min.x, point.x),
-            Math.min(bounds.min.y, point.y)
-        ),
-        max: createPoint(
-            Math.max(bounds.max.x, point.x),
-            Math.max(bounds.max.y, point.y)
-        )
-    }), initial);
-};
-
-const createScale = (bounds: Bounds, viewport: Viewport): Scale => {
-    const xRange = bounds.max.x - bounds.min.x;
-    const yRange = bounds.max.y - bounds.min.y;
-    
-    const xScale = (viewport.width - 2 * viewport.padding) / xRange;
-    const yScale = (viewport.height - 2 * viewport.padding) / yRange;
-    
-    return {
-        x: (x: number) => (x - bounds.min.x) * xScale + viewport.padding,
-        y: (y: number) => (y - bounds.min.y) * yScale + viewport.padding
-    };
-};
-
-// Main visualization function
-const visualizeGumowskiMira = (
-    ctx: CanvasRenderingContext2D,
-    points: Point[],
-    viewport: Viewport,
-    options: RenderOptions
-): void => {
-    // Calculate bounds and scaling
-    const bounds = calculateBounds(points);
-    const scale = createScale(bounds, viewport);
-    
-    // Clear canvas
-    ctx.fillStyle = 'white';
-    ctx.fillRect(0, 0, viewport.width, viewport.height);
-    
-    // Draw points efficiently
-    ctx.beginPath();
-    points.forEach(point => {
-        const x = scale.x(point.x);
-        const y = scale.y(point.y);
-        ctx.moveTo(x, y);
-        ctx.arc(x, y, options.radius, 0, Math.PI * 2);
-    });
-    
-    ctx.fillStyle = options.color;
-    ctx.fill();
-};
-
-
-
-// Add state management
-let currentParams: GumowskiParams;
-const savedResults: SavedResult[] = [];
-
-const randomFloat = (min: number, max: number): number => {
-    return Math.random() * (max - min) + min;
-};
 
 const knownParams: GumowskiParams[] = [
     { alpha: 0.8244391555, sigma: 0.1774071817, mu: -0.5116492043 },
@@ -202,107 +36,67 @@ const knownParams: GumowskiParams[] = [
     { alpha: 0.0404903983, sigma: 0.5136701621, mu: -0.2481335823 }
 ];
 
-const generateNewParams = (): GumowskiParams => ({
-    alpha: randomFloat(0, 1),
-    sigma: randomFloat(0, 1),
-    mu: randomFloat(-1, 1)
-});
-//const generateNewParams = (): GumowskiParams => knownParams[Math.floor(Math.random() * knownParams.length)];
+interface Point {
+    readonly x: number;
+    readonly y: number;
+}
 
+const createPoint = (x: number, y: number): Point => ({ x, y });
 
-const exportToCSV = (results: SavedResult[]): void => {
-    const headers = ['timestamp', 'rating', 'alpha', 'sigma', 'mu'];
-    const rows = results.map(result => [
-        result.timestamp,
-        result.rating,
-        result.params.alpha.toString(),
-        result.params.sigma.toString(),
-        result.params.mu.toString()
-    ]);
-    
-    const csvContent = [
-        headers.join(','),
-        ...rows.map(row => row.join(','))
-    ].join('\n');
-    
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.setAttribute('hidden', '');
-    a.setAttribute('href', url);
-    a.setAttribute('download', 'gumowski-results.csv');
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+const calculateG = (mu: number) => (x: number): number => {
+    const x2 = x * x;
+    return mu * x + (2 * (1 - mu) * x2) / (1 + x2);
 };
 
-const generateAndRender = (ctx: CanvasRenderingContext2D, viewport: Viewport, renderOptions: RenderOptions): void => {
-    currentParams = generateNewParams();
-    
-    const calculator: PointCalculator = {
-        type: 'standard',
-        params: currentParams
-    };
-
-    // Generate points
-    const initialPoint = createPoint(1, 1);
-    const points = Array.from(generatePoints(calculator, initialPoint, 20000));
-
-    // Visualize
-    visualizeGumowskiMira(ctx, points, viewport, renderOptions);
+const calculateNextPoint = (point: Point, params: typeof knownParams[0]): Point => {
+    const g = calculateG(params.mu);
+    const { alpha, sigma } = params;
+    const nextX = point.y + alpha * point.y * (1 - sigma * point.y * point.y) + g(point.x);
+    return createPoint(nextX, -point.x + g(nextX));
 };
 
-const saveRating = (rating: 'good' | 'bad'): void => {
-    savedResults.push({
-        params: currentParams,
-        rating,
-        timestamp: new Date().toISOString()
-    });
-};
+function* generatePoints(params: typeof knownParams[0], initial: Point, iterations: number): Generator<Point> {
+    let current = initial;
+    for (let i = 0; i < iterations; i++) {
+        current = calculateNextPoint(current, params);
+        yield current;
+    }
+}
 
-// Main function
 const main = () => {
     const canvas = document.getElementById('canvas') as HTMLCanvasElement;
     const ctx = canvas.getContext('2d')!;
+    ctx.fillStyle =  'rgba(15, 23, 42, 1.0)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    const viewport: Viewport = {
-        width: canvas.width,
-        height: canvas.height,
-        padding: 50
-    };
-
-    const renderOptions: RenderOptions = {
-        color: 'rgba(0, 0, 0, 0.8)',
-        radius: 0.75
-    };
-
-    // Add button event listeners
-    const goodButton = document.getElementById('goodButton') as HTMLButtonElement;
-    const badButton = document.getElementById('badButton') as HTMLButtonElement;
-    const rerollButton = document.getElementById('rerollButton') as HTMLButtonElement;
-    const exportButton = document.getElementById('exportButton') as HTMLButtonElement;
-
-    goodButton.addEventListener('click', () => {
-        saveRating('good');
-        generateAndRender(ctx, viewport, renderOptions);
+    // Use first set of parameters
+    const params = knownParams[Math.floor(Math.random() * knownParams.length)];
+    const points = Array.from(generatePoints(params, createPoint(1, 1), 20000));
+    
+    // Find bounds
+    const bounds = points.reduce((acc, point) => ({
+        minX: Math.min(acc.minX, point.x),
+        maxX: Math.max(acc.maxX, point.x),
+        minY: Math.min(acc.minY, point.y),
+        maxY: Math.max(acc.maxY, point.y)
+    }), { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity });
+    
+    // Calculate scale
+    const padding = 5;
+    const ypadding = 5;
+    const xScale = (canvas.width - 2 * padding) / (bounds.maxX - bounds.minX);
+    const yScale = (canvas.height - 2 * ypadding) / (bounds.maxY - bounds.minY);
+    
+    // Draw points
+    ctx.fillStyle = 'rgba(248, 250, 252, 0.8)';
+    ctx.beginPath();
+    points.forEach(point => {
+        const x = (point.x - bounds.minX) * xScale + padding;
+        const y = (point.y - bounds.minY) * yScale + padding;
+        ctx.moveTo(x, y);
+        ctx.arc(x, y, 0.75, 0, Math.PI * 2);
     });
-
-    badButton.addEventListener('click', () => {
-        saveRating('bad');
-        generateAndRender(ctx, viewport, renderOptions);
-    });
-
-    rerollButton.addEventListener('click', () => {
-        generateAndRender(ctx, viewport, renderOptions);
-    });
-
-    exportButton.addEventListener('click', () => {
-        exportToCSV(savedResults);
-    });
-
-    // Initial render
-    generateAndRender(ctx, viewport, renderOptions);
+    ctx.fill();
 };
 
-// Initialize
 window.addEventListener('load', main);
