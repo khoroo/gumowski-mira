@@ -1,10 +1,54 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Canvas Demo</title>
+    <title>Gumowski-Mira Explorer</title>
+    <style>
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        #goodButton {
+            background-color: #4CAF50;
+            color: white;
+        }
+        #badButton {
+            background-color: #f44336;
+            color: white;
+        }
+        #rerollButton {
+            background-color: #2196F3;
+            color: white;
+        }
+        #exportButton {
+            background-color: #9C27B0;
+            color: white;
+        }
+    </style>
 </head>
 <body>
-    <canvas id="canvas" width="400" height="400"></canvas>
+    <div class="container">
+        <canvas id="canvas" width="400" height="400"></canvas>
+        <div class="controls">
+            <button id="goodButton">Good</button>
+            <button id="badButton">Bad</button>
+            <button id="rerollButton">Reroll</button>
+            <button id="exportButton">Export CSV</button>
+        </div>
+    </div>
     <script src="main.js"></script>
 </body>
 </html>
