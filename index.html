@@ -98,6 +98,12 @@
             title="Clear the canvas">
             Clear
           </button>
+          <button 
+            id="downloadBtn" 
+            class="flex-1 px-4 py-2 bg-green-600 rounded hover:bg-green-700"
+            title="Download the attractor image with a transparent background">
+            Download
+          </button>
         </div>
         
         <div class="text-xs text-gray-400 mt-2">
@@ -105,5 +111,29 @@
         </div>
       </section>
     </div>
+    <script>
+      document.getElementById('downloadBtn').addEventListener('click', () => {
+        const origCanvas = document.getElementById('canvas');
+        const newCanvas = document.createElement('canvas');
+        newCanvas.width = origCanvas.width;
+        newCanvas.height = origCanvas.height;
+        const newCtx = newCanvas.getContext('2d');
+        
+        newCtx.drawImage(origCanvas, 0, 0);
+        const imgData = newCtx.getImageData(0, 0, newCanvas.width, newCanvas.height);
+        const data = imgData.data;
+        for (let i = 0; i < data.length; i += 4) {
+          // Replace dark background (#121827) with transparent
+          if (data[i] === 18 && data[i+1] === 24 && data[i+2] === 39) {
+            data[i+3] = 0;
+          }
+        }
+        newCtx.putImageData(imgData, 0, 0);
+        const link = document.createElement('a');
+        link.download = 'gumowski-mira.png';
+        link.href = newCanvas.toDataURL('image/png');
+        link.click();
+      });
+    </script>
   </body>
 </html>
