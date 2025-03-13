@@ -29,8 +29,8 @@
       <!-- Control Panel with simplified positioning -->
       <section class="w-full max-w-md min-[600px]:w-80 mt-2 min-[600px]:mt-0 min-[600px]:ml-4 bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700">
         <h2 class="text-xl font-semibold mb-2">Control Panel</h2>
-        <div>
-          <label for="presetSelect" class="block mb-1 text-gray-300 flex items-center">
+        <div class="mb-4">
+          <label for="presetSelect" class="mb-1 text-gray-300 flex items-center">
             Choose Preset:
             <span class="ml-1 text-xs text-gray-400" title="Select from predefined parameter combinations that create interesting patterns">(?)</span>
           </label>
@@ -38,38 +38,38 @@
             <!-- Filled by main.ts with known sets -->
           </select>
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-2 gap-4 mb-4">
           <div>
-            <label for="alphaInput" class="block mb-1 text-gray-300 flex items-center">
+            <label for="alphaInput" class="mb-1 text-gray-300 flex items-center">
               Alpha
             </label>
-            <input id="alphaInput" type="number" step="0.0001" class="w-full p-2 rounded text-gray-900 bg-gray-100" />
+            <input id="alphaInput" type="number" step="0.0001" class="w-full p-1 rounded text-gray-900 bg-gray-100 mb-2" />
           </div>
           <div>
-            <label for="sigmaInput" class="block mb-1 text-gray-300 flex items-center">
+            <label for="sigmaInput" class="mb-1 text-gray-300 flex items-center">
               Sigma
             </label>
-            <input id="sigmaInput" type="number" step="0.0001" class="w-full p-2 rounded text-gray-900 bg-gray-100" />
+            <input id="sigmaInput" type="number" step="0.0001" class="w-full p-1 rounded text-gray-900 bg-gray-100 mb-2" />
           </div>
           <div>
-            <label for="muInput" class="block mb-1 text-gray-300 flex items-center">
+            <label for="muInput" class="mb-1 text-gray-300 flex items-center">
               Mu
             </label>
-            <input id="muInput" type="number" step="0.0001" class="w-full p-2 rounded text-gray-900 bg-gray-100" />
+            <input id="muInput" type="number" step="0.0001" class="w-full p-1 rounded text-gray-900 bg-gray-100 mb-4" />
           </div>
         </div>
 
         <!-- Iteration Controls -->
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-2 gap-4 mb-4">
           <div>
-            <label for="startIterInput" class="block mb-1 text-gray-300 flex items-center">
+            <label for="startIterInput" class="mb-1 text-gray-300 flex items-center">
               Start Iteration
               <span class="ml-1 text-xs text-gray-400" title="Skip this many iterations before plotting points (useful for transients)">(?)</span>
             </label>
             <input id="startIterInput" type="number" min="0" value="0" class="w-full p-2 rounded text-gray-900 bg-gray-100" />
           </div>
           <div>
-            <label for="endIterInput" class="block mb-1 text-gray-300 flex items-center">
+            <label for="endIterInput" class="mb-1 text-gray-300 flex items-center">
               End Iteration
               <span class="ml-1 text-xs text-gray-400" title="Total number of iterations to calculate - higher values give more detailed attractors">(?)</span>
             </label>
@@ -77,7 +77,7 @@
           </div>
         </div>
         
-        <div class="flex items-center space-x-2">
+        <div class="flex items-center space-x-2 py-3 mb-4">
           <input id="autoSolveCheck" type="checkbox" class="w-4 h-4" checked />
           <label for="autoSolveCheck" class="select-none text-gray-300 flex items-center">
             Auto Solve
