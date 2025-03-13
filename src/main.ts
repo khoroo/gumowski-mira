@@ -70,8 +70,11 @@ function initControls() {
     const alphaInput = document.getElementById('alphaInput') as HTMLInputElement;
     const sigmaInput = document.getElementById('sigmaInput') as HTMLInputElement;
     const muInput = document.getElementById('muInput') as HTMLInputElement;
+    const startIterInput = document.getElementById('startIterInput') as HTMLInputElement;
+    const endIterInput = document.getElementById('endIterInput') as HTMLInputElement;
     const startBtn = document.getElementById('startBtn') as HTMLButtonElement;
     const clearBtn = document.getElementById('clearBtn') as HTMLButtonElement;
+    const autoSolveCheck = document.getElementById('autoSolveCheck') as HTMLInputElement;
   
     // Populate preset options
     knownParams.forEach((p, idx) => {
@@ -81,12 +84,17 @@ function initControls() {
       presetSelect.appendChild(option);
     });
   
-    // When a preset is selected, update inputs
+    // When a preset is selected, update inputs and trigger autosolve if enabled
     presetSelect.addEventListener('change', () => {
       const p = knownParams[+presetSelect.value];
       alphaInput.value = p.alpha.toFixed(4);
       sigmaInput.value = p.sigma.toFixed(4);
       muInput.value = p.mu.toFixed(4);
+      
+      // Trigger autosolve if enabled
+      if (autoSolveCheck.checked) {
+        runVisualization();
+      }
     });
   
     // Capture parameters and run
@@ -96,7 +104,9 @@ function initControls() {
         sigma: parseFloat(sigmaInput.value),
         mu: parseFloat(muInput.value)
       };
-      runGumowskiMira(selected);
+      const startIter = parseInt(startIterInput.value, 10) || 0;
+      const endIter = parseInt(endIterInput.value, 10) || 20000;
+      runGumowskiMira(selected, startIter, endIter);
     };
   
     startBtn.addEventListener('click', () => {
@@ -106,8 +116,6 @@ function initControls() {
     clearBtn.addEventListener('click', () => {
       if (!clearBtn.disabled) clearCanvas();
     });
-  
-    const autoSolveCheck = document.getElementById('autoSolveCheck') as HTMLInputElement;
   
     const updateButtonState = () => {
       const isAutoSolve = autoSolveCheck.checked;
@@ -123,15 +131,11 @@ function initControls() {
     // Initialize button states
     updateButtonState();
   
-    // Setup auto-solve input handlers
-    alphaInput.addEventListener('input', () => {
-      if (autoSolveCheck.checked) runVisualization();
-    });
-    sigmaInput.addEventListener('input', () => {
-      if (autoSolveCheck.checked) runVisualization();
-    });
-    muInput.addEventListener('input', () => {
-      if (autoSolveCheck.checked) runVisualization();
+    // Setup auto-solve input handlers for all inputs
+    [alphaInput, sigmaInput, muInput, startIterInput, endIterInput].forEach(input => {
+      input.addEventListener('input', () => {
+        if (autoSolveCheck.checked) runVisualization();
+      });
     });
   }
   
@@ -143,11 +147,25 @@ function initControls() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
   
-  function runGumowskiMira(params: GumowskiParams) {
+  function runGumowskiMira(params: GumowskiParams, startIter: number = 0, endIter: number = 20000) {
     const canvas = document.getElementById('canvas') as HTMLCanvasElement;
     const ctx = canvas.getContext('2d')!;
     clearCanvas();
-    const points = Array.from(generatePoints(params, createPoint(1, 1), 20000));
+    
+    // Run initial iterations without collecting points (if startIter > 0)
+    let current = createPoint(1, 1);
+    for (let i = 0; i < startIter; i++) {
+      current = calculateNextPoint(current, params);
+    }
+    
+    // Now collect points for visualization
+    const numPoints = endIter - startIter;
+    const points: Point[] = [];
+    for (let i = 0; i < numPoints; i++) {
+      current = calculateNextPoint(current, params);
+      points.push(current);
+    }
+    
     // Find bounds
     const bounds = points.reduce((acc, point) => ({
         minX: Math.min(acc.minX, point.x),
@@ -180,11 +198,6 @@ window.addEventListener('load', () => {
     presetSelect.value = '24';
     presetSelect.dispatchEvent(new Event('change'));
     
-    // Make sure we solve on page load
-    const selected: GumowskiParams = {
-      alpha: parseFloat((document.getElementById('alphaInput') as HTMLInputElement).value),
-      sigma: parseFloat((document.getElementById('sigmaInput') as HTMLInputElement).value),
-      mu: parseFloat((document.getElementById('muInput') as HTMLInputElement).value)
-    };
-    runGumowskiMira(selected);
+    // We don't need this anymore since the change event will trigger autosolve
+    // and we already dispatch the change event above
 });

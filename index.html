@@ -7,46 +7,103 @@
   </head>
   <body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col items-center p-4">
     <h1 class="text-3xl font-bold mb-4">Gumorski Mira</h1>
-    <p class="mb-4 mx-auto max-w-xl">
+    <p class="mb-4 mx-auto max-w-xl text-left">
       The Gumowski–Mira attractor is a chaotic map explored in particle accelerator research. It generates sensitive trajectories that highlight chaotic dynamics. Learn more at 
       <a href="https://en.wikipedia.org/wiki/List_of_chaotic_maps" class="underline">Wikipedia</a>.
     </p>
-    <canvas id="canvas" width="800" height="600" class="mb-4 border border-white"></canvas>
+    
+    <!-- Simplified container with reduced gap -->
+    <div class="flex flex-col min-[600px]:flex-row items-center justify-center w-full max-w-6xl gap-2">
+      <!-- Canvas container with simpler markup -->
+      <div class="flex-shrink-0">
+        <canvas 
+          id="canvas" 
+          width="600" 
+          height="400" 
+          class="border border-gray-700 rounded-lg shadow-lg max-w-full h-auto"
+          style="max-height: 70vh;"
+          aria-label="Gumowski-Mira attractor visualization canvas"
+        ></canvas>
+      </div>
+      
+      <!-- Control Panel with simplified positioning -->
+      <section class="w-full max-w-md min-[600px]:w-80 mt-2 min-[600px]:mt-0 min-[600px]:ml-4 bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700">
+        <h2 class="text-xl font-semibold mb-2">Control Panel</h2>
+        <div>
+          <label for="presetSelect" class="block mb-1 text-gray-300 flex items-center">
+            Choose Preset:
+            <span class="ml-1 text-xs text-gray-400" title="Select from predefined parameter combinations that create interesting patterns">(?)</span>
+          </label>
+          <select id="presetSelect" class="w-full p-2 rounded text-gray-900 bg-gray-100">
+            <!-- Filled by main.ts with known sets -->
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="alphaInput" class="block mb-1 text-gray-300 flex items-center">
+              Alpha
+            </label>
+            <input id="alphaInput" type="number" step="0.0001" class="w-full p-2 rounded text-gray-900 bg-gray-100" />
+          </div>
+          <div>
+            <label for="sigmaInput" class="block mb-1 text-gray-300 flex items-center">
+              Sigma
+            </label>
+            <input id="sigmaInput" type="number" step="0.0001" class="w-full p-2 rounded text-gray-900 bg-gray-100" />
+          </div>
+          <div>
+            <label for="muInput" class="block mb-1 text-gray-300 flex items-center">
+              Mu
+            </label>
+            <input id="muInput" type="number" step="0.0001" class="w-full p-2 rounded text-gray-900 bg-gray-100" />
+          </div>
+        </div>
 
-    <!-- Control Panel -->
-    <section class="w-full max-w-md space-y-4">
-      <div>
-        <label for="presetSelect" class="block mb-1">Choose Preset:</label>
-        <select id="presetSelect" class="w-full p-2 rounded text-gray-900">
-          <!-- Filled by main.ts with known sets -->
-        </select>
-      </div>
-      <div class="grid grid-cols-3 gap-4">
-        <div>
-          <label for="alphaInput" class="block mb-1">Alpha</label>
-          <input id="alphaInput" type="number" step="0.0001" class="w-full p-2 rounded text-gray-900" />
+        <!-- Iteration Controls -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="startIterInput" class="block mb-1 text-gray-300 flex items-center">
+              Start Iteration
+              <span class="ml-1 text-xs text-gray-400" title="Skip this many iterations before plotting points (useful for transients)">(?)</span>
+            </label>
+            <input id="startIterInput" type="number" min="0" value="0" class="w-full p-2 rounded text-gray-900 bg-gray-100" />
+          </div>
+          <div>
+            <label for="endIterInput" class="block mb-1 text-gray-300 flex items-center">
+              End Iteration
+              <span class="ml-1 text-xs text-gray-400" title="Total number of iterations to calculate - higher values give more detailed attractors">(?)</span>
+            </label>
+            <input id="endIterInput" type="number" min="1000" value="20000" class="w-full p-2 rounded text-gray-900 bg-gray-100" />
+          </div>
         </div>
-        <div>
-          <label for="sigmaInput" class="block mb-1">Sigma</label>
-          <input id="sigmaInput" type="number" step="0.0001" class="w-full p-2 rounded text-gray-900" />
+        
+        <div class="flex items-center space-x-2">
+          <input id="autoSolveCheck" type="checkbox" class="w-4 h-4" checked />
+          <label for="autoSolveCheck" class="select-none text-gray-300 flex items-center">
+            Auto Solve
+            <span class="ml-1 text-xs text-gray-400" title="When enabled, automatically updates the visualization when any parameters change">(?)</span>
+          </label>
         </div>
-        <div>
-          <label for="muInput" class="block mb-1">Mu</label>
-          <input id="muInput" type="number" step="0.0001" class="w-full p-2 rounded text-gray-900" />
+        
+        <div class="flex space-x-4">
+          <button 
+            id="startBtn" 
+            class="flex-1 px-4 py-2 bg-indigo-600 rounded hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Calculate and display the attractor with current parameters">
+            Start
+          </button>
+          <button 
+            id="clearBtn" 
+            class="flex-1 px-4 py-2 bg-red-600 rounded hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Clear the canvas">
+            Clear
+          </button>
         </div>
-      </div>
-      <div class="flex items-center space-x-2">
-        <input id="autoSolveCheck" type="checkbox" class="w-4 h-4" checked />
-        <label for="autoSolveCheck" class="select-none">Auto Solve</label>
-      </div>
-      <div class="flex space-x-4">
-        <button id="startBtn" class="px-4 py-2 bg-indigo-600 rounded hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed">
-          Start
-        </button>
-        <button id="clearBtn" class="px-4 py-2 bg-red-600 rounded hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed">
-          Clear
-        </button>
-      </div>
-    </section>
+        
+        <div class="text-xs text-gray-400 mt-2">
+          <p>Hover over labels for more information about each control.</p>
+        </div>
+      </section>
+    </div>
   </body>
 </html>
