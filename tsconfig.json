@@ -1,14 +1,16 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ESNext",
     "lib": ["ES2020", "DOM"],
     "strict": true,
-    "moduleResolution": "node",
+    "module": "ESNext",
+    "moduleResolution": "Node",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "outDir": "./docs"
+    "outDir": "./docs",
+    "isolatedModules": true
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*.ts", "vite.config.ts"],
   "exclude": ["node_modules"]
 }

@@ -18,9 +18,9 @@
         with pkgs; {
           default = mkShell {
             buildInputs = [
-              typescript
-	      corepack
+	      typescript
 	      nodejs
+	      corepack
             ];
           };
         }
