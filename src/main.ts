@@ -63,16 +63,57 @@ function* generatePoints(params: typeof knownParams[0], initial: Point, iteratio
     }
 }
 
-const main = () => {
+function initControls() {
+    const presetSelect = document.getElementById('presetSelect') as HTMLSelectElement;
+    const alphaInput = document.getElementById('alphaInput') as HTMLInputElement;
+    const sigmaInput = document.getElementById('sigmaInput') as HTMLInputElement;
+    const muInput = document.getElementById('muInput') as HTMLInputElement;
+    const startBtn = document.getElementById('startBtn') as HTMLButtonElement;
+    const clearBtn = document.getElementById('clearBtn') as HTMLButtonElement;
+  
+    // Populate preset options
+    knownParams.forEach((p, idx) => {
+      const option = document.createElement('option');
+      option.value = idx.toString();
+      option.text = `Preset ${idx + 1}`;
+      presetSelect.appendChild(option);
+    });
+  
+    // When a preset is selected, update inputs
+    presetSelect.addEventListener('change', () => {
+      const p = knownParams[+presetSelect.value];
+      alphaInput.value = p.alpha.toString();
+      sigmaInput.value = p.sigma.toString();
+      muInput.value = p.mu.toString();
+    });
+  
+    // Capture parameters and run
+    const runVisualization = () => {
+      const selected: GumowskiParams = {
+        alpha: parseFloat(alphaInput.value),
+        sigma: parseFloat(sigmaInput.value),
+        mu: parseFloat(muInput.value)
+      };
+      runGumowskiMira(selected);
+    };
+  
+    startBtn.addEventListener('click', () => runVisualization());
+    clearBtn.addEventListener('click', () => clearCanvas());
+  }
+  
+  // Clears the canvas
+  function clearCanvas() {
     const canvas = document.getElementById('canvas') as HTMLCanvasElement;
     const ctx = canvas.getContext('2d')!;
-    ctx.fillStyle =  'rgba(15, 23, 42, 1.0)';
+    ctx.fillStyle = 'rgba(15, 23, 42, 1.0)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // Use first set of parameters
-    const params = knownParams[Math.floor(Math.random() * knownParams.length)];
+  }
+  
+  function runGumowskiMira(params: GumowskiParams) {
+    const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+    const ctx = canvas.getContext('2d')!;
+    clearCanvas();
     const points = Array.from(generatePoints(params, createPoint(1, 1), 20000));
-    
     // Find bounds
     const bounds = points.reduce((acc, point) => ({
         minX: Math.min(acc.minX, point.x),
@@ -97,6 +138,13 @@ const main = () => {
         ctx.arc(x, y, 0.75, 0, Math.PI * 2);
     });
     ctx.fill();
-};
+  }
 
-window.addEventListener('load', main);
+window.addEventListener('load', () => {
+    initControls();
+    // Optionally set default preset
+    const presetSelect = document.getElementById('presetSelect') as HTMLSelectElement;
+    presetSelect.value = '0';
+    presetSelect.dispatchEvent(new Event('change'));
+    clearCanvas();
+});

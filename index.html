@@ -4,9 +4,40 @@
     <meta charset="UTF-8" />
     <title>Gumowski–Mira</title>
     <script type="module" src="./src/main.ts"></script>
-    <link href="./dist/style.css" rel="stylesheet" />
   </head>
-  <body class="bg-gray-900">
-    <canvas id="canvas" width="800" height="600"></canvas>
+  <body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col items-center p-4">
+    <canvas id="canvas" width="800" height="600" class="mb-4"></canvas>
+
+    <!-- Control Panel -->
+    <section class="w-full max-w-md space-y-4">
+      <div>
+        <label for="presetSelect" class="block mb-1">Choose Preset:</label>
+        <select id="presetSelect" class="w-full p-2 rounded text-gray-900">
+          <!-- Filled by main.ts with known sets -->
+        </select>
+      </div>
+      <div class="grid grid-cols-3 gap-4">
+        <div>
+          <label for="alphaInput" class="block mb-1">Alpha</label>
+          <input id="alphaInput" type="number" step="0.0001" class="w-full p-2 rounded text-gray-900" />
+        </div>
+        <div>
+          <label for="sigmaInput" class="block mb-1">Sigma</label>
+          <input id="sigmaInput" type="number" step="0.0001" class="w-full p-2 rounded text-gray-900" />
+        </div>
+        <div>
+          <label for="muInput" class="block mb-1">Mu</label>
+          <input id="muInput" type="number" step="0.0001" class="w-full p-2 rounded text-gray-900" />
+        </div>
+      </div>
+      <div class="flex space-x-4">
+        <button id="startBtn" class="px-4 py-2 bg-indigo-600 rounded hover:bg-indigo-700">
+          Start
+        </button>
+        <button id="clearBtn" class="px-4 py-2 bg-red-600 rounded hover:bg-red-700">
+          Clear
+        </button>
+      </div>
+    </section>
   </body>
 </html>
