@@ -1,4 +1,6 @@
 // main.ts
+import './app.css'
+
 interface GumowskiParams {
     readonly alpha: number;
     readonly sigma: number;
@@ -82,9 +84,9 @@ function initControls() {
     // When a preset is selected, update inputs
     presetSelect.addEventListener('change', () => {
       const p = knownParams[+presetSelect.value];
-      alphaInput.value = p.alpha.toString();
-      sigmaInput.value = p.sigma.toString();
-      muInput.value = p.mu.toString();
+      alphaInput.value = p.alpha.toFixed(4);
+      sigmaInput.value = p.sigma.toFixed(4);
+      muInput.value = p.mu.toFixed(4);
     });
   
     // Capture parameters and run
@@ -97,15 +99,47 @@ function initControls() {
       runGumowskiMira(selected);
     };
   
-    startBtn.addEventListener('click', () => runVisualization());
-    clearBtn.addEventListener('click', () => clearCanvas());
+    startBtn.addEventListener('click', () => {
+      if (!startBtn.disabled) runVisualization();
+    });
+  
+    clearBtn.addEventListener('click', () => {
+      if (!clearBtn.disabled) clearCanvas();
+    });
+  
+    const autoSolveCheck = document.getElementById('autoSolveCheck') as HTMLInputElement;
+  
+    const updateButtonState = () => {
+      const isAutoSolve = autoSolveCheck.checked;
+      startBtn.disabled = isAutoSolve;
+      clearBtn.disabled = isAutoSolve;
+    };
+  
+    autoSolveCheck.addEventListener('change', () => {
+      updateButtonState();
+      if (autoSolveCheck.checked) runVisualization();
+    });
+  
+    // Initialize button states
+    updateButtonState();
+  
+    // Setup auto-solve input handlers
+    alphaInput.addEventListener('input', () => {
+      if (autoSolveCheck.checked) runVisualization();
+    });
+    sigmaInput.addEventListener('input', () => {
+      if (autoSolveCheck.checked) runVisualization();
+    });
+    muInput.addEventListener('input', () => {
+      if (autoSolveCheck.checked) runVisualization();
+    });
   }
   
   // Clears the canvas
   function clearCanvas() {
     const canvas = document.getElementById('canvas') as HTMLCanvasElement;
     const ctx = canvas.getContext('2d')!;
-    ctx.fillStyle = 'rgba(15, 23, 42, 1.0)';
+    ctx.fillStyle = '#121827';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
   
@@ -142,9 +176,15 @@ function initControls() {
 
 window.addEventListener('load', () => {
     initControls();
-    // Optionally set default preset
     const presetSelect = document.getElementById('presetSelect') as HTMLSelectElement;
-    presetSelect.value = '0';
+    presetSelect.value = '24';
     presetSelect.dispatchEvent(new Event('change'));
-    clearCanvas();
+    
+    // Make sure we solve on page load
+    const selected: GumowskiParams = {
+      alpha: parseFloat((document.getElementById('alphaInput') as HTMLInputElement).value),
+      sigma: parseFloat((document.getElementById('sigmaInput') as HTMLInputElement).value),
+      mu: parseFloat((document.getElementById('muInput') as HTMLInputElement).value)
+    };
+    runGumowskiMira(selected);
 });

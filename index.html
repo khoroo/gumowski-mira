@@ -6,6 +6,7 @@
     <script type="module" src="./src/main.ts"></script>
   </head>
   <body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col items-center p-4">
+    <h1 class="text-3xl font-bold mb-4">Gumorski Mira</h1>
     <canvas id="canvas" width="800" height="600" class="mb-4"></canvas>
 
     <!-- Control Panel -->
@@ -30,11 +31,15 @@
           <input id="muInput" type="number" step="0.0001" class="w-full p-2 rounded text-gray-900" />
         </div>
       </div>
+      <div class="flex items-center space-x-2">
+        <input id="autoSolveCheck" type="checkbox" class="w-4 h-4" checked />
+        <label for="autoSolveCheck" class="select-none">Auto Solve</label>
+      </div>
       <div class="flex space-x-4">
-        <button id="startBtn" class="px-4 py-2 bg-indigo-600 rounded hover:bg-indigo-700">
+        <button id="startBtn" class="px-4 py-2 bg-indigo-600 rounded hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed">
           Start
         </button>
-        <button id="clearBtn" class="px-4 py-2 bg-red-600 rounded hover:bg-red-700">
+        <button id="clearBtn" class="px-4 py-2 bg-red-600 rounded hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed">
           Clear
         </button>
       </div>
