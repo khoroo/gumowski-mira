@@ -4,8 +4,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "serve": "vite preview",
-    "deploy": "gh-pages -d dist/"
+    "serve": "vite preview"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.0",

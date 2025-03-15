@@ -181,7 +181,7 @@ function initControls() {
     const yScale = (canvas.height - 2 * ypadding) / (bounds.maxY - bounds.minY);
     
     // Draw points
-    ctx.fillStyle = 'rgba(248, 250, 252, 0.8)';
+    ctx.fillStyle = 'white';
     ctx.beginPath();
     points.forEach(point => {
         const x = (point.x - bounds.minX) * xScale + padding;
